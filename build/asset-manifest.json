@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.551ca18b.css",
-    "main.js": "/static/js/main.053da888.js",
+    "main.js": "/static/js/main.dcb9acbc.js",
     "static/js/787.1f032a33.chunk.js": "/static/js/787.1f032a33.chunk.js",
     "static/media/MetaGamZ-Logo.png": "/static/media/MetaGamZ-Logo.6c313bd4c36e562f4c9d.png",
     "static/media/MetaGamZ-Logo_Horizon.png": "/static/media/MetaGamZ-Logo_Horizon.6c313bd4c36e562f4c9d.png",
@@ -10,11 +10,11 @@
     "index.html": "/index.html",
     "static/media/telegram.svg": "/static/media/telegram.2e1144dcc5c525b0184e4b13ef47f15f.svg",
     "main.551ca18b.css.map": "/static/css/main.551ca18b.css.map",
-    "main.053da888.js.map": "/static/js/main.053da888.js.map",
+    "main.dcb9acbc.js.map": "/static/js/main.dcb9acbc.js.map",
     "787.1f032a33.chunk.js.map": "/static/js/787.1f032a33.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.551ca18b.css",
-    "static/js/main.053da888.js"
+    "static/js/main.dcb9acbc.js"
   ]
 }

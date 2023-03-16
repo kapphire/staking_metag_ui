@@ -114,7 +114,7 @@ export default function StakeDialog(props) {
     const [progress, setProgress] = React.useState(0);
     const [value, setValue] = React.useState(0);
     const { classes } = useStyles();
-    const { isStake, staked, metagBalance, setMessage, setOpenAlert, setSuccess, setStaked, stakingContract, address } = props;
+    const { isStake, staked, metagBalance, setMessage, setOpenAlert, setSuccess, setStaked, setTokenSupply, stakingContract, address } = props;
   
     const handleClickOpen = () => {
       setOpen(true);
@@ -130,6 +130,9 @@ export default function StakeDialog(props) {
                 stakingContract.methods.balanceOf(address).call().then((r) => {
                     setStaked(Web3.utils.fromWei(r))
                 });
+                stakingContract.methods.totalStaked().call().then((res) => {
+                    setTokenSupply(Web3.utils.fromWei(res));
+                });
                 setMessage('Successfully staked.');
                 setSuccess(true);
                 setOpenAlert(true);
@@ -144,6 +147,9 @@ export default function StakeDialog(props) {
             stakingContract.methods.withdraw(amount).send({from: address}).then((res) => {
                 stakingContract.methods.balanceOf(address).call().then((r) => {
                     setStaked(Web3.utils.fromWei(r))
+                });
+                stakingContract.methods.totalStaked().call().then((res) => {
+                    setTokenSupply(Web3.utils.fromWei(res));
                 });
                 setMessage('Successfully unstaked.');
                 setSuccess(true);

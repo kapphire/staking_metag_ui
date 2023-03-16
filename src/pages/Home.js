@@ -321,6 +321,7 @@ function Home()  {
 									setOpenAlert={setOpenAlert}
 									setSuccess={setSuccess}
 									setStaked={setStaked}
+									setTokenSupply={setTokenSupply}
 									stakingContract={stakingContract}
 									address={account}
 								/>
@@ -335,6 +336,7 @@ function Home()  {
 									setOpenAlert={setOpenAlert}
 									setSuccess={setSuccess}
 									setStaked={setStaked}
+									setTokenSupply={setTokenSupply}
 									stakingContract={stakingContract}
 									address={account}
 								/>
