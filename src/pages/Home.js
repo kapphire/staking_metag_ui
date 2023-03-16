@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Box, Typography, Grid, Button } from '@mui/material';
 import { makeStyles } from 'tss-react/mui';
 import MetaGamZLogo from '../MetaGamZ-Logo.png';
@@ -9,6 +9,7 @@ import metagAbi from '../artifacts/contracts/ERC20Interface.sol/ERC20Interface.j
 import Web3 from "web3";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import { AccountContext } from "../Contexts/AccountContext";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -147,51 +148,63 @@ function Home()  {
 	const metagContractAddress = process.env.REACT_APP_METAG_CONTRACT_ADDRESS;
 	const chainId = parseInt(process.env.REACT_APP_AVAX_CHAIN_ID);
 	const history = useHistory();
-	const address = localStorage.getItem('address');
+
+	const { account } = useContext(AccountContext);
 
 	React.useEffect(() => {
 		if(!window.ethereum) { history.push('/install-metamask');}
-		if(window.ethereum && address) {
+		else {
 			const obj = new Web3(window.ethereum); 
-			obj.eth.getChainId().then(res => 
-				{
-					if(res === chainId) {
-						const stakingInstance = new obj.eth.Contract(stakingAbi.abi, stakingContractAddress);
-						const metagInstance = new obj.eth.Contract(metagAbi.abi, metagContractAddress);
-						setStakingContract(stakingInstance);
-						setMetagContract(metagInstance);
-						stakingInstance.methods.balanceOf(address).call().then((res) => {
-							setStaked(Web3.utils.fromWei(res))
-						});
-						stakingInstance.methods.rewardsOf(address).call().then((res) => {
-							setReward(Web3.utils.fromWei(res));
-						});
-						stakingInstance.methods.apy().call().then((res) => {
-							setApy(res);
-						});
-						stakingInstance.methods.totalStaked().call().then((res) => {
-							setTokenSupply(Web3.utils.fromWei(res));
-						});
-						stakingInstance.methods.pendingRewardsOf(address).call().then((res) => {
-							setPendingReward(Web3.utils.fromWei(res))
-						});
-						metagInstance.methods.balanceOf(address).call().then((res) => {
-							setMetagBalance(Web3.utils.fromWei(res))
-						})
-						metagInstance.methods.allowance(address, stakingContractAddress).call().then((res) => {
-							if(parseFloat(res) === 0) {
-								setEnablePool(false);
-							} else {
-								setEnablePool(true);
-							}
-						});
+			const stakingInstance = new obj.eth.Contract(stakingAbi.abi, stakingContractAddress);
+			
+			stakingInstance.methods.apy().call().then((res) => {
+				setApy(res);
+			});
+			stakingInstance.methods.totalStaked().call().then((res) => {
+				setTokenSupply(Web3.utils.fromWei(res));
+			});
+
+			if(account) {
+				obj.eth.getChainId().then(res => 
+					{
+						if(res === chainId) {
+							const stakingInstance = new obj.eth.Contract(stakingAbi.abi, stakingContractAddress);
+							const metagInstance = new obj.eth.Contract(metagAbi.abi, metagContractAddress);
+							setStakingContract(stakingInstance);
+							setMetagContract(metagInstance);
+							stakingInstance.methods.balanceOf(account).call().then((res) => {
+								setStaked(Web3.utils.fromWei(res))
+							});
+							stakingInstance.methods.rewardsOf(account).call().then((res) => {
+								setReward(Web3.utils.fromWei(res));
+							});
+							stakingInstance.methods.pendingRewardsOf(account).call().then((res) => {
+								setPendingReward(Web3.utils.fromWei(res))
+							});
+							metagInstance.methods.balanceOf(account).call().then((res) => {
+								setMetagBalance(Web3.utils.fromWei(res))
+							})
+							metagInstance.methods.allowance(account, stakingContractAddress).call().then((res) => {
+								if(parseFloat(res) === 0) {
+									setEnablePool(false);
+								} else {
+									setEnablePool(true);
+								}
+							});
+						}
 					}
-				}
-			)
+				)
+			}
+			else {
+				setStaked(0)
+				setReward(0);
+				setPendingReward(0)
+				setMetagBalance(0)
+			}
 		}
 		
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [account]);
 
 	const handleCloseAlert = (event, reason) => {
 		if (reason === 'clickaway') {
@@ -203,7 +216,7 @@ function Home()  {
 
 	const deposit = () => {
 		const amount = Web3.utils.toWei(process.env.REACT_APP_DEPOSIT_AMOUNT);
-		stakingContract.methods.depositTokens(amount).send({from: address}).then((result) => {
+		stakingContract.methods.depositTokens(amount).send({from: account}).then((result) => {
 			stakingContract.methods.tokenSupply().call().then((res) => {
 				setTokenSupply(Web3.utils.fromWei(res));
 				setMessage('Successfully deposited.');
@@ -218,17 +231,17 @@ function Home()  {
 	}
 
 	const enablePool = () => {
-		if(localStorage.getItem('address')) {
+		if(account) {
 			const amount = Web3.utils.toWei('100000000000');
-			metagContract.methods.approve(stakingContractAddress, amount).send({from: address}).then((res) => {
+			metagContract.methods.approve(stakingContractAddress, amount).send({from: account}).then((res) => {
 				setEnablePool(true);
 			});
 		}
 	}
 
 	const claim = () => {
-		stakingContract.methods.claimReward().send({from: address}).then((result) => {
-			stakingContract.methods.rewardsOf(address).call().then((res) => {
+		stakingContract.methods.claimReward().send({from: account}).then((result) => {
+			stakingContract.methods.rewardsOf(account).call().then((res) => {
 				setReward(Web3.utils.fromWei(res));
 				setMessage('Successfully claimed.');
 				setSuccess(true);
@@ -302,7 +315,7 @@ function Home()  {
 									setSuccess={setSuccess}
 									setStaked={setStaked}
 									stakingContract={stakingContract}
-									address={address}
+									address={account}
 								/>
 							</Box>
 							<Box>
@@ -316,7 +329,7 @@ function Home()  {
 									setSuccess={setSuccess}
 									setStaked={setStaked}
 									stakingContract={stakingContract}
-									address={address}
+									address={account}
 								/>
 							</Box>
 						</Box>
@@ -330,7 +343,7 @@ function Home()  {
 				</Grid>
 			</Grid>
 			{
-				process.env.REACT_APP_STAKING_WALLET === address && <Box className={classes.depositContainer}>
+				process.env.REACT_APP_STAKING_WALLET === account && <Box className={classes.depositContainer}>
 					<Button className={classes.collectBtn} onClick={deposit}>Deposit</Button>
 				</Box>
 			}

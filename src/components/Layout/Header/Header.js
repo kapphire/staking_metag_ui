@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Button, Typography, IconButton, Menu, MenuItem } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import logo from '../../../MetaGamZ-Logo_Horizon.png';
 import { makeStyles } from 'tss-react/mui';
 import Web3 from "web3";
 import { useHistory } from "react-router-dom";
+import { AccountContext } from "../../../Contexts/AccountContext";
 
 const useStyles = makeStyles()(theme => ({
   container: {
@@ -74,23 +75,25 @@ const useStyles = makeStyles()(theme => ({
 
 function Header()  {
 	const { classes } = useStyles();
+	const { setAccount } = useContext(AccountContext);
 	const history = useHistory();
 	const [address, setAddress] = useState();
 	const [web3Obj, setWeb3Obj] = useState();
 	const [isCorrectNet, setCorrectNet] = useState(false);
 	const chainId = parseInt(process.env.REACT_APP_AVAX_CHAIN_ID); // Avalache network ChainId
 	const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+	const open = Boolean(anchorEl);
+	const handleClick = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
 
 	useEffect(() => {
 		if(localStorage.getItem('address')) {
 			setAddress(localStorage.getItem('address'));
+			setAccount(localStorage.getItem('address'))
 			const obj = new Web3(window.ethereum);
 			setWeb3Obj(obj);
 			obj.eth.getChainId().then(res => {
@@ -109,24 +112,24 @@ function Header()  {
 				else {
 					setCorrectNet(false);
 				}
+			});
+
+			window.ethereum.on('accountsChanged', function (accounts) {
+				if(accounts.length === 0 && localStorage.getItem('address')) {
+					logout();
+				}
 			})
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [web3Obj]);
-
-	useEffect(() => {
-		if(window?.ethereum?._state?.accounts !== null && window?.ethereum?._state?.accounts?.length === 0) {
-		  logout();
-		}
-	} ,[window?.ethereum?._state?.accounts])
 
 	const connectMetaMask = async () => {
 		if (window.ethereum) {
 			const obj = new Web3(window.ethereum);
 			setWeb3Obj(obj);
 			try {
-			await window.ethereum.enable();
-			} catch (error) {}
+				await window.ethereum.enable();
+			} catch (error) { console.log(error);}
 
 			window.ethereum
 				.request({ method: 'eth_accounts' })
@@ -134,6 +137,7 @@ function Header()  {
 					if(res.length !== 0) {
 						localStorage.setItem('address', res[0]);
 						setAddress(res[0])
+						setAccount(res[0])
 						obj.eth.getChainId().then(res => {
 							if(res === chainId) setCorrectNet(true) }
 						)
@@ -152,7 +156,9 @@ function Header()  {
 	const logout = () => {
 		handleClose();
 		localStorage.removeItem('address');
-		window.location.reload();
+		setAddress(null);
+		setAccount(null);
+		setWeb3Obj(null);
 	}
 
 	return(
@@ -168,7 +174,10 @@ function Header()  {
 				<Typography className={classes.navigationItem}>FAQ</Typography> */}
 				{address && <Typography className={isCorrectNet ? classes.navigationItemOutlined : classes.navigationItemOutlinedWrong }>{isCorrectNet ? 'AVAX Network' : 'Wrong Network'}</Typography>}
 				<Button className={classes.button} onClick={() => connectMetaMask()}><b className={classes.buttonText}>{address ? shortenAddress(address) : 'CONNECT WALLET'}</b></Button>
-				<IconButton className={classes.iconButton} onClick={handleClick}><ArrowDropDownIcon /></IconButton>
+				<IconButton className={classes.iconButton} onClick={(event) => {
+					if(address) handleClick(event);
+					else connectMetaMask();
+				}}><ArrowDropDownIcon /></IconButton>
 				<Menu
 					id="basic-menu"
 					anchorEl={anchorEl}
@@ -183,7 +192,7 @@ function Header()  {
 						horizontal: 'right',
 					}}
 				>
-					<MenuItem onClick={logout}>Log out</MenuItem>
+					{address && <MenuItem onClick={() => logout()}>Log out</MenuItem>}
 				</Menu>
 			</Box>
 		</header>
