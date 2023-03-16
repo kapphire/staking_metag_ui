@@ -303,7 +303,7 @@ function Home()  {
 						<Typography className={classes.downText}>MetaG Earned</Typography>	
 						<Box className={classes.collectBox}>
 							<Typography className={classes.downValue}>{(parseFloat(reward) + parseFloat(pendingReward)).toFixed(5)}</Typography>						
-							<Button className={classes.collectBtn} onClick={claim}>Collect</Button>
+							{account && <Button className={classes.collectBtn} onClick={claim}>Collect</Button>}
 						</Box>				
 					</Box>
 				</Grid>
@@ -343,7 +343,7 @@ function Home()  {
 						:
 						<React.Fragment>
 							<Typography className={classes.downText}>Start Staking</Typography>		
-							<Button className={classes.enableBtn} onClick={() => enablePool()}>Enable Pool</Button>
+							{account && <Button className={classes.enableBtn} onClick={() => enablePool()}>Enable Pool</Button>}
 						</React.Fragment>
 						}
 					</Box>

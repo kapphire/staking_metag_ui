@@ -161,9 +161,9 @@ export default function StakeDialog(props) {
   
     return (
       <div>
-        <Button variant="outlined" onClick={handleClickOpen} className={classes.enableBtn}>
+        {address &&<Button variant="outlined" onClick={handleClickOpen} className={classes.enableBtn}>
           {isStake ? '+' : '-'}
-        </Button>
+        </Button>}
         <Dialog
           onClose={handleClose}
           open={open}
