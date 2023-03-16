@@ -217,16 +217,23 @@ function Home()  {
 	const deposit = () => {
 		const amount = Web3.utils.toWei(process.env.REACT_APP_DEPOSIT_AMOUNT);
 		stakingContract.methods.depositTokens(amount).send({from: account}).then((result) => {
-			stakingContract.methods.tokenSupply().call().then((res) => {
-				setTokenSupply(Web3.utils.fromWei(res));
-				setMessage('Successfully deposited.');
-				setSuccess(true);
-				setOpenAlert(true);
-			}).catch((e) => {
-				setMessage('Something goes wrong.');
-				setSuccess(false);
-				setOpenAlert(true);
-			});
+			setMessage('Successfully deposited.');
+			setSuccess(true);
+			setOpenAlert(true);
+			// stakingContract.methods.tokenSupply().call().then((res) => {
+			// 	setTokenSupply(Web3.utils.fromWei(res));
+			// 	setMessage('Successfully deposited.');
+			// 	setSuccess(true);
+			// 	setOpenAlert(true);
+			// }).catch((e) => {
+			// 	setMessage('Something goes wrong.');
+			// 	setSuccess(false);
+			// 	setOpenAlert(true);
+			// });
+		}).catch((e) => {
+			setMessage('Something goes wrong.');
+			setSuccess(false);
+			setOpenAlert(true);
 		});
 	}
 
