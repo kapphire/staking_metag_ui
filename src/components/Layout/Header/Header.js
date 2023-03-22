@@ -83,6 +83,12 @@ function Header()  {
 	const chainId = parseInt(process.env.REACT_APP_AVAX_CHAIN_ID); // Avalache network ChainId
 	const [anchorEl, setAnchorEl] = useState(null);
 	const open = Boolean(anchorEl);
+	const approvers = [
+		process.env.REACT_APP_CEO_WALLET.toLowerCase(),
+		process.env.REACT_APP_CTO_WALLET.toLowerCase(),
+		process.env.REACT_APP_AD_WALLET.toLowerCase(),
+		process.env.REACT_APP_COMPANY_WALLET.toLowerCase()
+	];
 	const handleClick = (event) => {
 		setAnchorEl(event.currentTarget);
 	};
@@ -167,6 +173,7 @@ function Header()  {
 				<img src={logo} alt={logo} className={classes.logoImage} onClick={() => history.push('/')} />
 			</Box>
 			<Box className={classes.navigationContainer}>
+				{approvers.includes(address) && <Typography className={classes.navigationItem} onClick={() => history.push('/claim')}>Claim</Typography>}
 				{/* <Typography className={classes.navigationItem}>METAGEarn</Typography>
 				<Typography className={classes.navigationItem}>METAGPlay</Typography>
 				<Typography className={classes.navigationItem}>METAGLock</Typography>
