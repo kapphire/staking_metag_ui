@@ -281,7 +281,7 @@ function Home()  {
 						</Box>
 						<Box>
 							<Typography className={classes.logoTableHeader}>APY</Typography>
-							<Typography className={classes.logoTableText}>{apy} %</Typography>
+							<Typography className={classes.logoTableText}>Stopped</Typography>
 						</Box>
 						<Box>
 							<Typography className={classes.logoTableHeader}>Total Staked</Typography>
